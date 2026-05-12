@@ -1,0 +1,33 @@
+{
+  "name": "OpenFactory-Apps - Collection of OpenFactory Apps",
+  "image": "ghcr.io/openfactoryio/devcontainer-py3.14:v0.5.4",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2.16.1": {},
+    "ghcr.io/openfactoryio/openfactory-sdk/infra:0.5.4": {},
+    "ghcr.io/openfactoryio/openfactory-sdk/opcua-connector:0.5.4": {}
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [
+    80
+  ],
+  "portsAttributes": {
+    "80": {
+      "label": "Traefik",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "containerEnv": {
+    "OPENFACTORY_UNS_SCHEMA": "/workspaces/openfactory-test/ressources/uns.yml"
+  },
+  "postCreateCommand": ".devcontainer/postStartScript.sh"
+}

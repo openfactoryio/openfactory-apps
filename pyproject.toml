@@ -1,0 +1,18 @@
+[project]
+name = "openfactory-apps"
+version = "0.5.4"
+description = "Collection of OpenFactory Apps"
+requires-python = ">=3.12"
+dependencies = ["OpenFactory @ git+https://github.com/openfactoryio/openfactory-core.git@v0.5.4"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "flake8",
+    "tomlkit",
+    "flask",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
