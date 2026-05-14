@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+<div class="container-fluid h-100" style="background-color: #dee7f1;">
+  <div class="row h-100">
+    
+    <!-- Main content -->
+    <div class="col-lg-10 h-100 d-flex flex-column" style="border: 1.5px solid gray; padding: 0;">
+
+        {% include 'file_manager/filesMain.html' %}
+
+    </div>
+
+    <!-- Side tool bar -->
+    <div class="col-lg-2 h-100" style="border-bottom: 1.5px solid gray; border-top: 1.5px solid gray; padding: 10px; overflow-y: auto;">
+      {% include 'file_manager/filesSideToolBar.html' %}
+    </div>
+
+    <!-- Scripts -->
+    {% include 'file_manager/filesScripts.html' %}
+
+  </div>
+</div>
+{% endblock app_content %}

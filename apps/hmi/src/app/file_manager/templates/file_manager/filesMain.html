@@ -1,0 +1,95 @@
+<style>
+    /* Preformatted text inside the file content */
+    #fileContent {
+        white-space: pre-wrap;
+        /* Allow the text to wrap */
+        word-wrap: break-word;
+        /* Break words to prevent overflow */
+        overflow-wrap: break-word;
+        /* For long lines */
+    }
+
+    /* Table styles */
+    table {
+        width: 100%;
+        max-width: 100%;
+        border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+        padding: 5px;
+        text-align: left;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    tr.selected {
+        background-color: darkorange;
+        color: white;
+    }
+</style>
+
+
+<div style="display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;">
+    <!-- Flash messages -->
+    {% include 'file_manager/filesFlashMsg.html' %}
+
+    <!-- Current folder -->
+    <div class="d-flex align-items-center" style="height: 50px; border-bottom: 1.5px solid gray; padding: 10px;">
+        <div class="d-flex align-items-center font-weight-bold" style="height: 100%;">
+            {{ current_folder }}
+        </div>
+    </div>
+
+    <!-- File list -->
+    <div style="flex-grow: 1; overflow-y: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background-color: lightsteelblue; position: sticky; top: 0; z-index: 1;">
+                <tr>
+                    <th>Name</th>
+                    <th>Size (bytes)</th>
+                    <th>Last Modified</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for folder in folders %}
+                <tr id="folder-{{ folder.foldername }}" onclick="selectFolder('{{ folder.foldername }}')">
+                    <td><i class="fa fa-folder-o" style="margin-right: 10px;"></i>{{ folder.foldername }}</td>
+                    <td></td>
+                    <td>{{ folder.created }}</td>
+                </tr>
+                {% endfor %}
+                {% for file in files %}
+                <tr id="file-{{ file.filename }}" onclick="selectFile('{{ file.filename }}')">
+                    <td><i class="fa fa-file-o" style="margin-right: 10px;"></i>{{ file.filename }}</td>
+                    <td>{{ file.size }}</td>
+                    <td>{{ file.modified }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- File content display area -->
+<div id="fileContentContainer" class="mt-4" style="padding: 0px; border: 1px solid #ddd;">
+
+    <!-- File Name Header -->
+    <div id="fileNameHeader" style="background-color: lightsteelblue; padding: 5px; font-weight: bold;">
+        <strong id="nc_file_name">---</strong>
+    </div>
+
+    <!-- File Content Area -->
+    <pre id="fileContent"
+        style="margin: 0; padding: 10px; height: 15em; overflow-y: auto; background-color: #f8f9fa; white-space: pre-wrap; word-wrap: break-word;"></pre>
+</div>

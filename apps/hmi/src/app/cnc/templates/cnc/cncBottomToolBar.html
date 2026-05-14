@@ -1,0 +1,33 @@
+<button type="button" class="btn btn-success text-center mx-1" onclick="window.location.href='{{ url_for('files.index') }}'">
+    <div class="d-flex flex-column align-items-center">
+        <i class="fa fa-sign-in fa-2x mb-1"></i>
+        <span>Load nc-file</span>
+    </div>
+</button>
+
+<form id="start_cycle" action="{{ url_for('cnc.start_cycle') }}" method="post">
+    <!-- CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Start cycle button -->
+    <button id="loadButton" type="submit" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-play-circle  fa-2x mb-1"></i>
+            <span>Start Cycle</span>
+        </div>
+    </button>
+</form>
+
+<button id="feed_hold" type="button" class="btn btn-danger text-center mx-1" onclick="window.location.href='{{ url_for('cnc.feed_hold') }}'">
+    <div class="d-flex flex-column align-items-center">
+        <i class="fa fa-pause fa-2x mb-1"></i>
+        <span>Feed hold</span>
+    </div>
+</button>
+
+<button id="cycle_resume" type="button" class="btn btn-success text-center mx-1" onclick="window.location.href='{{ url_for('cnc.resume') }}'">
+    <div class="d-flex flex-column align-items-center">
+        <i class="fa fa-play fa-2x mb-1"></i>
+        <span>Resume cycle</span>
+    </div>
+</button>

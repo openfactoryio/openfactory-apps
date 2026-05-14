@@ -1,0 +1,194 @@
+<!-- Confirm delete dialog -->
+<div class="modal" tabindex="-1" role="dialog" id="confirmDeleteModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete '<span id="fileNamePlaceholder"></span>' ?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- Folder name dialog -->
+<div class="modal" tabindex="-1" role="dialog" id="newFolderModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New folder</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="folderNameInput">Enter the new folder name:</label>
+                <input type="text" class="form-control" id="folderNameInput" placeholder="New folder name">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmNewFolderName">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load file -->
+<p>
+    <form id="loadForm" action="{{ url_for('files.load_file') }}" method="post">
+        <!-- CSRF token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+        <!-- Hidden selected file -->
+        <input type="hidden" name="selected_file_load" id="selected_file_load" value="">
+    
+        <!-- Download button -->
+        <button id="loadButton" type="submit" class="btn btn-success text-center btn-block" style="display: none;">
+            <div class="d-flex flex-column align-items-center">
+                <i class="fa fa-sign-in fa-2x mb-1"></i>
+                <span>Load file</span>
+            </div>
+        </button>
+    </form>
+</p>
+
+<!-- Edit file -->
+<p>
+    <form id="editForm" action="{{ url_for('files.edit_file') }}" method="post">
+        <!-- CSRF token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+        <!-- Hidden selected file -->
+        <input type="hidden" name="selected_file_edit" id="selected_file_edit" value="">
+    
+        <!-- Edit button -->
+        <button id="editButton" type="submit" class="btn btn-success text-center btn-block" style="display: none;">
+            <div class="d-flex flex-column align-items-center">
+                <i class="fa fa-pencil-square-o fa-2x mb-1"></i>
+                <span>Edit file</span>
+            </div>
+        </button>
+    </form>
+</p>
+
+<!-- Open folder -->
+<p>
+    <form id="openFolderForm" action="{{ url_for('files.open_folder') }}" method="post">
+        <!-- CSRF token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+        <!-- Hidden selected folder -->
+        <input type="hidden" name="selected_folder_open" id="selected_folder_open" value="">
+    
+        <!-- Open button -->
+        <button id="openFolderButton" type="submit" class="btn btn-success text-center btn-block" style="display: none;">
+            <div class="d-flex flex-column align-items-center">
+                <i class="fa fa-folder-open fa-2x mb-1"></i>
+                <span>Open folder</span>
+            </div>
+        </button>
+    </form>
+</p>
+
+<!-- Make folder -->
+<p>
+    <form id="makeFolderForm" action="{{ url_for('files.make_folder') }}" method="post">
+        <!-- CSRF token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Hidden folder name input -->
+        <input type="hidden" id="newFolderName" name="newFolderName" value="">
+
+        <!-- Make folder button -->
+        <button id="makeFolderButton" type="button" class="btn btn-success text-center btn-block">
+            <div class="d-flex flex-column align-items-center">
+                <i class="fa fa-folder-o fa-2x mb-1"></i>
+                <span>New folder</span>
+            </div>
+        </button>
+    </form>
+</p>
+
+<!-- Upload file -->
+ <p>
+<form action="{{ url_for('files.upload_file') }}" method="post" enctype="multipart/form-data">
+    <!-- CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Hidden file input -->
+    <input type="file" name="file" id="file" required style="display: none;" onchange="this.form.submit()">
+    
+    <!-- Upload button -->
+    <button id="uploadButton" type="button" class="btn btn-success text-center btn-block" onclick="document.getElementById('file').click();">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-cloud-upload fa-2x mb-1"></i>
+            <span>Upload file</span>
+        </div>
+    </button>
+</form>
+</p>
+
+<!-- Download file -->
+<p>
+<form id="downloadForm" action="{{ url_for('files.download_file') }}" method="post">
+    <!-- CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Hidden selected file -->
+    <input type="hidden" name="selected_file" id="selected_file_download" value="">
+
+    <!-- Download button -->
+    <button id="downloadButton" type="submit" class="btn btn-success text-center btn-block" style="display: none;">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-cloud-download  fa-2x mb-1"></i>
+            <span>Download file</span>
+        </div>
+    </button>
+</form>
+</p>
+
+<!-- Delete folder button -->
+<p>
+<form action="{{ url_for('files.delete_folder') }}" method="post" id="deleteFolderForm">
+    <!-- CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Hidden selected folder -->
+    <input type="hidden" name="selected_folder_delete" id="selected_folder_delete" value="">
+
+    <!-- Delete button -->
+    <button id="deleteFolderButton" type="button" class="btn btn-danger text-center btn-block" style="display: none;">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-trash fa-2x mb-1"></i>
+            <span>Delete folder</span>
+        </div>
+    </button>
+</form>
+</p>
+
+<!-- Delete file button -->
+<p>
+    <form action="{{ url_for('files.delete_file') }}" method="post" id="deleteFileForm">
+        <!-- CSRF token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+        <!-- Hidden selected file -->
+        <input type="hidden" name="selected_file" id="selected_file_delete" value="">
+    
+        <!-- Delete button -->
+        <button id="deleteFileButton" type="button" class="btn btn-danger text-center btn-block" style="display: none;">
+            <div class="d-flex flex-column align-items-center">
+                <i class="fa fa-trash fa-2x mb-1"></i>
+                <span>Delete file</span>
+            </div>
+        </button>
+    </form>
+    </p>

@@ -1,0 +1,44 @@
+<!-- templates/navbar.html -->
+
+<!-- Navigation bar on top -->
+<nav class="navbar navbar-expand-md sticky-top navbar-dark" style="background-color: #962B09;">
+  <a class="navbar-brand" href="{{ url_for('cnc.index') }}">{{ cnc_uuid if cnc_uuid else "---" }}</a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+    aria-controls="navbarMenus" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarMenus">
+    <ul class="navbar-nav active">
+      <li class="nav-item">
+        <a class="nav-link" style="color: #FFFFFF" href="{{ url_for('cnc.index') }}">CNC</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" style="color: #FFFFFF" href="{{ url_for('settings.index') }}">Settings</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" style="color: #FFFFFF" href="{{ url_for('files.index') }}">File manager</a>
+      </li>
+    </ul>
+
+
+    <ul class="navbar-nav active ml-auto">
+      <li class="nav-item">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          {{ current_user.fullname }}
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg-right" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="{{ url_for('settings.index') }}">Settings</a>
+          {% if current_user.role == 'admin' %}
+          <a class="dropdown-item" href="{{ url_for('admin.index') }}">Admin</a>
+          {% endif %}
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Log Out</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+</nav>

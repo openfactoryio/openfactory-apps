@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+  <!-- Two columns layout -->
+  <div class="container-fluid h-100" >
+    
+    <div class="row">
+    
+      <!-- Sidebar -->
+      <div class="col-lg-2" >
+        {% include 'settings/sidebar.html' %}
+      </div>
+
+      <!-- Main content -->
+      <div class="col-lg-10" style="padding: 10px;">
+        <!-- Flash messages -->
+        {% include 'flash.html' %}
+        {% block content %}
+        {% endblock content %}
+      </div>
+  
+    </div>
+  </div>
+
+{% endblock app_content %}

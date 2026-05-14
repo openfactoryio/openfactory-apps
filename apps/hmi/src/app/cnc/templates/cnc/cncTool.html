@@ -1,0 +1,18 @@
+
+<!-- Tool -->
+<table class="table table-bordered" style="width: 100%;">
+    <tbody>
+      <tr>
+        <td style="width: 125px;">T</td>
+        <td id="tool_id" style="width: 100px;">---</td>
+        <td style="font-size: 16px; padding: 8px;">
+            <form action="{{ url_for('cnc.tool_id') }} " method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="text" id="tool_id" name="tool_id" placeholder="Tool-ID" size="10">
+                <button type="submit" class="btn btn-success">Set</button>
+            </form>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  

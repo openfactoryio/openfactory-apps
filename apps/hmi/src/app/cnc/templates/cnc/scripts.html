@@ -1,0 +1,132 @@
+<script>
+    let eventSourceState = null;
+    let eventSourceMsg = null;
+
+    // Function to handle incoming SSE states and update the coordiantes
+    function startListeningForCoordinates() {
+        if (eventSourceState) {
+            eventSourceState.close();
+        }
+
+        eventSourceState = new EventSource('/state');
+
+        eventSourceState.onmessage = function (event) {
+            // Parse the incoming data
+            const data = JSON.parse(event.data);
+
+            // Update new CNC states
+            if (data.Xact !== undefined) {
+                document.getElementById('x-coord').textContent = data.Xact;
+            }
+            if (data.Yact !== undefined) {
+                document.getElementById('y-coord').textContent = data.Yact;
+            }
+            if (data.Zact !== undefined) {
+                document.getElementById('z-coord').textContent = data.Zact;
+            }
+            if (data.Xrel !== undefined) {
+                document.getElementById('x-coord-rel').textContent = data.Xrel;
+            }
+            if (data.Yrel !== undefined) {
+                document.getElementById('y-coord-rel').textContent = data.Yrel;
+            }
+            if (data.Zrel !== undefined) {
+                document.getElementById('z-coord-rel').textContent = data.Zrel;
+            }
+            if (data.Frt !== undefined) {
+                document.getElementById('feed-rate').textContent = data.Frt;
+            }
+            if (data.Sspeed !== undefined) {
+                document.getElementById('spindle-speed').textContent = data.Sspeed;
+            }
+            if (data.tool_id !== undefined) {
+                document.getElementById('tool_id').textContent = data.tool_id;
+            }
+
+            // Highlight the execution line in nc-file
+            if (data.line !== undefined) {
+                highlightLineInContent(data.line);
+            }
+        };
+
+        eventSourceState.onerror = function () {
+            console.error("Error occurred while receiving SSE");
+            eventSourceState.close();
+        };
+    }
+
+    // Function to highlight the line in the loaded nc-file dynamically
+    function highlightLineInContent(line_Number) {
+        // Get the existing content
+        const contentElement = document.getElementById('nc-file-content');
+        const lineNumber = parseInt(line_Number, 10);
+        let content = contentElement.textContent;
+
+        // Split the content into lines
+        const lines = content.split('\n');
+
+        // Highlight the specific line by adding <span> around it
+        const highlightedContent = lines.map((line, index) => {
+            // Highlight the line if it matches the line number
+            if (index + 1 === lineNumber) {
+                return `<span style="background-color: orange; display: inline-block; width: 100%;">${line}</span>`;
+            }
+            return line; // Return the line as it is if not the one to highlight
+        }).join('\n');
+
+        // Update the content with highlighted line
+        console.log(highlightedContent)
+        contentElement.innerHTML = highlightedContent;
+    }
+
+    // Function to update the message
+    function updateMessage(data) {
+        // Update with the new message
+        document.getElementById('msg').textContent = data.msg;
+
+        // Get the alert div and update its class based on the level
+        const alertDiv = document.querySelector('.alert');
+
+        // Reset the class list to just "alert" to clear any old classes
+        alertDiv.className = 'alert';
+
+        // Add the appropriate class based on data.level
+        if (data.level === 'normal') {
+            alertDiv.classList.add('alert-success');
+        } else if (data.level === 'success') {
+            alertDiv.classList.add('alert-success');
+        } else if (data.level === 'warning') {
+            alertDiv.classList.add('alert-warning');
+        } else if (data.level === 'fault') {
+            alertDiv.classList.add('alert-danger');
+        }
+    }
+
+    // Function to handle incoming SSE errors and update the message
+    function startListeningForMsg() {
+        if (eventSourceMsg) {
+            eventSourceMsg.close();
+        }
+
+        eventSourceMsg = new EventSource('/conditions');
+
+        eventSourceMsg.onmessage = function (event) {
+            // Parse the incoming data
+            const data = JSON.parse(event.data);
+
+            // Update the message
+            updateMessage(data);
+        };
+
+        eventSourceMsg.onerror = function () {
+            console.error("Error occurred while receiving SSE in CNC msg block");
+            eventSourceMsg.close();
+        };
+    }
+
+    // Start listening when the page loads
+    window.onload = function () {
+        startListeningForCoordinates();
+        startListeningForMsg();
+    };
+</script>

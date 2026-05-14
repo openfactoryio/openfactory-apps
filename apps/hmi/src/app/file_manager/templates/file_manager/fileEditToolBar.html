@@ -1,0 +1,43 @@
+<!-- Save -->
+<p>
+<form action="{{ url_for('files.save_file', filename=selected_file) }}" method="post" id="saveForm">
+    <!-- CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Hidden selected file -->
+    <input type="hidden" name="file_content" id="file_content" value="">
+
+    <!-- Save button -->
+    <button id="saveButton" type="button" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-floppy-o fa-2x mb-1"></i>
+            <span>Save file</span>
+        </div>
+    </button>
+</form>
+</p>
+
+<!-- Discard -->
+<button type="submit" class="btn btn-danger text-center btn-block"
+    onclick="window.location.href='{{ url_for('files.index') }}'">
+    <div class="d-flex flex-column align-items-center">
+        <i class="fa fa-times fa-2x mb-1"></i>
+        <span>Discard</span>
+    </div>
+</button>
+
+
+<!-- Script -->
+<script>
+
+    document.getElementById('saveButton').addEventListener('click', () => {
+        // Get the edited content from the editor
+        const editedContent = document.getElementById('fileContentEditor').value;
+
+        // Set the hidden input value to the edited content
+        document.getElementById('file_content').value = editedContent;
+
+        // Submit the form
+        document.getElementById('saveForm').submit();
+    });
+</script>

@@ -1,0 +1,6 @@
+<form action="{{ url_for('cnc.gcode_run') }} " method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <label for="gcode"><strong>G-code:</strong></label>
+    <input type="text" id="gcode" name="gcode" placeholder="Enter G-code here" size="50">
+    <button type="submit" class="btn btn-success">Run</button>
+</form>

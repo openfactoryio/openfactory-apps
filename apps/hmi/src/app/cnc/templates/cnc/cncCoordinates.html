@@ -1,0 +1,80 @@
+<!-- Table with CNC coordinates -->
+
+<table class="table table-bordered" style="width: 100%;">
+  <thead style="background-color: lightsteelblue;">
+    <tr>
+      <th style="width: 100px;">Mach</th>
+      <th style="width: 125px;">Position [mm]</th>
+      <th></th>
+      <th>Dist-to-go [mm]</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>X</td>
+      <td id="x-coord-rel" align='right'>---</td>
+      <td></td>
+      <td>---</td>
+    </tr>
+    <tr style="line-height: 0px;">
+      <td></td>
+      <td id="x-coord" align='right' style="font-size: 14px;">---</td>
+    </tr>
+    <tr>
+      <td>Y</td>
+      <td id="y-coord-rel" align='right'>---</td>
+      <td></td>
+      <td>---</td>
+    </tr>
+    <tr style="line-height: 0px;">
+      <td></td>
+      <td id="y-coord" align='right' style="font-size: 14px;">---</td>
+    </tr>
+    <tr>
+      <td>Z</td>
+      <td id="z-coord-rel" align='right'>---</td>
+      <td></td>
+      <td>---</td>
+    </tr>
+    <tr style="line-height: 0px;">
+      <td></td>
+      <td id="z-coord" align='right' style="font-size: 14px;">---</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="table table-bordered" style="width: 100%;">
+  <thead style="background-color: lightsteelblue;">
+    <tr>
+      <th style="width: 125px;">F, S, T</th>
+      <th style="width: 100px;"></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>F</td>
+      <td id="feed-rate">---</td>
+      <td>[mm/sec]</td>
+    </tr>
+    <tr>
+      <td>S</td>
+      <td id="spindle-speed">---</td>
+      <td>[rpm]</td>
+    </tr>
+  </tbody>
+</table>
+
+<style>
+  .table th {
+      padding: 4px 8px;
+      font-weight: bold;
+  }
+  .table td {
+      padding: 4px 8px;
+      font-weight: bold;
+      font-size: 24px;
+  }
+
+</style>
+

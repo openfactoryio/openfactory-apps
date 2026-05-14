@@ -1,0 +1,200 @@
+<script>
+
+    // Pass the URL for fetching the file content
+    const getFileContentUrl = "{{ url_for('files.get_file_content', filename='dummy.txt') }}".replace('dummy.txt', '');  // Empty placeholder that will be replaced dynamically.
+
+    // confirmation dialog
+    function confirmDeleteDialog(message, callback) {
+        // Set the message dynamically in the modal
+        document.getElementById('fileNamePlaceholder').textContent = message;
+
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        modal.show();
+
+        // Temporary event handlers (confirm and cancel)
+        const handleConfirm = () => {
+            callback(true);
+            cleanup();
+        };
+
+        const handleCancel = () => {
+            callback(false);
+            cleanup();
+        };
+
+        // Temporary event listeners
+        const confirmButton = document.getElementById('confirmDelete');
+        const cancelButton = document.querySelector('[data-dismiss="modal"]');
+        confirmButton.addEventListener('click', handleConfirm);
+        cancelButton.addEventListener('click', handleCancel);
+
+        // Cleanup to remove event listeners and hide the modal
+        function cleanup() {
+            confirmButton.removeEventListener('click', handleConfirm);
+            cancelButton.removeEventListener('click', handleCancel);
+            modal.hide();
+        }
+    }
+
+    // listen for escape key
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+
+            // Remove 'selected' class from all rows
+            let rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => row.classList.remove('selected'));
+
+            // Hide buttons
+            hideFilesButtons()
+            hideFoldersButtons()
+            hideGeneralButtons()
+
+            // Show general buttons
+            document.getElementById('makeFolderButton').style.display = 'block';
+            document.getElementById('uploadButton').style.display = 'block';
+        }
+    });
+
+    // hide general buttons
+    function hideGeneralButtons() {
+        document.getElementById('makeFolderButton').style.display = 'none';
+        document.getElementById('uploadButton').style.display = 'none';
+        document.getElementById('downloadButton').style.display = 'none';
+    }
+
+    // hide file related buttons
+    function hideFilesButtons() {
+        // Remove file content
+        document.getElementById('nc_file_name').textContent = '';
+        document.getElementById('fileContent').textContent = '';
+
+        // Hide files related buttons
+        document.getElementById('loadButton').style.display = 'none';
+        document.getElementById('editButton').style.display = 'none';
+        document.getElementById('deleteFileButton').style.display = 'none';
+    }
+
+    // hide folder related buttons
+    function hideFoldersButtons() {
+        document.getElementById('openFolderButton').style.display = 'none';
+        document.getElementById('deleteFolderButton').style.display = 'none';
+    }
+
+    // handle folder selection
+    function selectFolder(foldername) {
+        // Remove 'selected' class from all rows
+        let rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => row.classList.remove('selected'));
+
+        // Add 'selected' class to the clicked folder row
+        document.getElementById('folder-' + foldername).classList.add('selected');
+
+        // Show folders related buttons
+        document.getElementById('openFolderButton').style.display = 'block';
+        if (foldername == '..') {
+            document.getElementById('deleteFolderButton').style.display = 'none';
+        } else {
+            document.getElementById('deleteFolderButton').style.display = 'block';
+        }
+        
+        // Hide files related buttons
+        hideFilesButtons()
+        hideGeneralButtons()
+
+        // Update the hidden input fields with the selected file
+        document.getElementById('selected_folder_open').value = foldername;
+        document.getElementById('selected_folder_delete').value = foldername;
+    }
+
+    // handle file selection
+    function selectFile(filename) {
+        // Remove 'selected' class from all rows
+        let rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => row.classList.remove('selected'));
+
+        // Add 'selected' class to the clicked file row
+        document.getElementById('file-' + filename).classList.add('selected');
+
+        // Hide folders related buttons
+        hideFoldersButtons()
+        hideGeneralButtons()
+
+        // Show files related buttons
+        document.getElementById('loadButton').style.display = 'block';
+        document.getElementById('editButton').style.display = 'block';
+        document.getElementById('deleteFileButton').style.display = 'block';
+        document.getElementById('downloadButton').style.display = 'block';
+
+        // Update the hidden input fields with the selected file
+        document.getElementById('selected_file_delete').value = filename;
+        document.getElementById('selected_file_download').value = filename;
+        document.getElementById('selected_file_load').value = filename;
+        document.getElementById('selected_file_edit').value = filename;
+
+        // Fetch and display the content of the selected file
+        fetch(getFileContentUrl + filename)
+            .then(response => response.text())
+            .then(content => {
+                // Show the file content in the fileContentContainer
+                document.getElementById('nc_file_name').textContent = filename;
+                document.getElementById('fileContent').textContent = content;
+                document.getElementById('fileContentContainer').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading file content:', error);
+            });
+    }
+
+    // Ask user confirmation when the delete file button is clicked
+    document.getElementById('deleteFileButton').addEventListener('click', function () {
+        // Get the folder name from the hidden input
+        const fileName = document.getElementById('selected_file_delete').value;
+
+        // Ask user for confirmation
+        confirmDeleteDialog(fileName, function (confirmed) {
+            if (confirmed) {
+                document.getElementById('deleteFileForm').submit();
+            }
+        });
+
+    });
+
+    // Ask user confirmation when the delete folder button is clicked
+    document.getElementById('deleteFolderButton').addEventListener('click', function () {
+        // Get the folder name from the hidden input
+        const folderName = document.getElementById('selected_folder_delete').value;
+
+        // Ask user for confirmation
+        confirmDeleteDialog(folderName, function (confirmed) {
+            if (confirmed) {
+                document.getElementById('deleteFolderForm').submit();
+            }
+        });
+
+    });
+
+
+    // Ask for folder name when 'makeFolderButton' is clicked
+    document.getElementById('makeFolderButton').addEventListener('click', function () {
+        new bootstrap.Modal(document.getElementById('newFolderModal')).show();
+    });
+
+    // Handle 'Ok' button in the modal
+    document.getElementById('confirmNewFolderName').addEventListener('click', function () {
+        const folderName = document.getElementById('folderNameInput').value.trim();
+
+        if (!folderName) {
+            alert('Please enter a folder name.');
+            return;
+        }
+
+        // Set the hidden input value and submit the form
+        document.getElementById('newFolderName').value = folderName;
+        document.getElementById('makeFolderForm').submit();
+
+        // Close the modal
+        bootstrap.Modal.getInstance(document.getElementById('newFolderModal')).hide();
+    });
+
+</script>

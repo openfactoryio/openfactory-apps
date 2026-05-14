@@ -1,0 +1,5 @@
+__pycache__
+instance/
+debug
+app_cnc_hmi.yml
+Dockerfile

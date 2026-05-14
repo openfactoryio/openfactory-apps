@@ -1,0 +1,16 @@
+<!-- File Name Header -->
+<div style="background-color: lightsteelblue; padding: 5px; width: 100%;">
+    <strong id="loaded_nc_file">Current job: {{ nc_file.name }}</strong>
+</div>
+
+<!-- File Content Area -->
+<div class="p-0" style="height: 100%; width: 100%; overflow: auto;">
+    <pre id="nc-file-content" style="flex: 1;
+            margin: 0;
+            padding: 10px;
+            overflow-x: clip;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            white-space: pre-wrap;
+            word-wrap: break-word;">{{ nc_file.content | safe }}</pre>
+</div>

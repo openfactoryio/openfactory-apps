@@ -1,0 +1,110 @@
+<!-- Homing cycle -->
+<p>
+    <button id="home_cycle" type="button" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-home fa-2x mb-1"></i>
+            <span>Home Cycle</span>
+        </div>
+    </button>
+</p>
+
+<!-- Z-Probe -->
+<p>
+    <button id="zprobe" type="button" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-long-arrow-down fa-2x mb-1"></i>
+            <span>Z-Probe</span>
+        </div>
+    </button>
+</p>
+
+<!-- Clear offsets -->
+<p>
+    <button id="clear_offsets" type="button" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-times fa-2x mb-1"></i>
+            <span>Clear offsets</span>
+        </div>
+    </button>
+</p>
+
+<!-- Kill alarm state -->
+<p>
+    <button id="kill_alarm" type="button" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-unlock fa-2x mb-1"></i>
+            <span>Unlock alarm</span>
+        </div>
+    </button>
+</p>
+
+<!-- Connect -->
+<p>
+    <button id="connect" type="button" class="btn btn-success text-center btn-block">
+        <div class="d-flex flex-column align-items-center">
+            <i class="fa fa-usb fa-2x mb-1"></i>
+            <span>Connect</span>
+        </div>
+    </button>
+</p>
+
+
+<script>
+    // Retrieve CSRF token
+    const csrfToken = "{{ csrf_token() }}";
+
+    // Homing cycle
+    document.getElementById('home_cycle').addEventListener('click', function() {
+        fetch('{{ url_for("cnc.home_cycle") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+    });
+
+    // Z-probe
+    document.getElementById('zprobe').addEventListener('click', function() {
+        fetch('{{ url_for("cnc.zprobe") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+    });
+
+    // Clear offsets
+    document.getElementById('clear_offsets').addEventListener('click', function() {
+        fetch('{{ url_for("cnc.clear_offsets") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+    });
+
+    // Connect
+    document.getElementById('connect').addEventListener('click', function() {
+        fetch('{{ url_for("cnc.connect") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+    });
+
+    // Unlock alarm
+    document.getElementById('kill_alarm').addEventListener('click', function() {
+        fetch('{{ url_for("cnc.kill_alarm") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+    });
+</script>

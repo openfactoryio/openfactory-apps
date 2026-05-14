@@ -1,0 +1,23 @@
+services:
+
+  hmi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UNAME: hmi
+        UID: ${HMI_USER_ID}
+
+    image: ofa/hmi
+    environment:
+      - KSQL_HOST=${KSQL_HOST}
+      - FLASK_APP=hmi.hmi
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=4444
+      - NC_FILES_FOLDER=${HMI_NC_FILES_FOLDER}
+      - INSTANCE_PATH=${HMI_INSTANCE_PATH}
+    ports:
+      - 4444:4444
+    volumes:
+      - ${HMI_NC_FILES_FOLDER}:${HMI_NC_FILES_FOLDER}
+      - ${HMI_INSTANCE_PATH}:${HMI_INSTANCE_PATH}
