@@ -1,0 +1,78 @@
+<!-- ========================================================
+ 
+       MTConnect Device file for PROVer3018 Desktop CNC
+
+     ======================================================== -->
+
+
+<MTConnectDevices>
+  <Devices>
+    <Device uuid="PROVER3018-GEN" id="device" name="PROVer3018">
+      <!-- General information -->
+      <Description manufacturer="Genmitsu"/>
+      <DataItems>
+        <DataItem category="EVENT" id="avail" type="AVAILABILITY"/>
+        <DataItem category="EVENT" id="operator" subType="OPERATOR" type="USER"/>
+      </DataItems>
+
+      <!-- Components -->
+      <Components>
+
+        <!-- Axes -->
+        <Axes id="axes" name="Axes">
+          <Components>
+            <Linear id="X-axis" name="X">
+              <DataItems>
+                <DataItem category="SAMPLE" id="Xact" name="Xact" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+                <DataItem category="SAMPLE" id="Xrel" name="Xrel" nativeUnits="MILLIMETER" subType="COMMANDED" type="POSITION" units="MILLIMETER"/>
+              </DataItems>
+            </Linear>
+            <Linear id="Y-axis" name="Y">
+              <DataItems>
+                <DataItem category="SAMPLE" id="Yact" name="Yact" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+                <DataItem category="SAMPLE" id="Yrel" name="Yrel" nativeUnits="MILLIMETER" subType="COMMANDED" type="POSITION" units="MILLIMETER"/>
+              </DataItems>
+            </Linear>
+            <Linear id="Z-axis" name="Z">
+              <DataItems>
+                <DataItem category="SAMPLE" id="Zact" name="Zact" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+                <DataItem category="SAMPLE" id="Zrel" name="Zrel" nativeUnits="MILLIMETER" subType="COMMANDED" type="POSITION" units="MILLIMETER"/>
+              </DataItems>
+            </Linear>
+            <Spindle id="Spindle" name="S">
+              <DataItems>
+                <DataItem category="SAMPLE" id="Sspeed" name="Sspeed" type="SPINDLE_SPEED" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" units="REVOLUTION/MINUTE"/>
+              </DataItems>
+            </Spindle>
+          </Components>
+        </Axes>
+
+        <!-- Controller -->
+        <Controller id="ctrl" name="controller">
+          <!-- General information on the controller -->
+          <DataItems>
+            <DataItem category="EVENT" id="firmeware" type="APPLICATION" subType="VERSION"/>
+            <DataItem category="EVENT" id="msg" type="MESSAGE"/>
+            <DataItem category="CONDITION" id="grbl" type="LOGIC_PROGRAM"/>
+            <DataItem category="CONDITION" id="motion" type="MOTION_PROGRAM"/>
+          </DataItems>
+          <Components>
+            <!-- State of the controller -->
+            <Path id="path" name="path">
+              <DataItems>
+                <DataItem category="EVENT" id="block" name="block" type="BLOCK"/>
+                <DataItem category="EVENT" id="mode" name="mode" type="CONTROLLER_MODE"/>
+                <DataItem category="EVENT" id="line" name="line" type="LINE_NUMBER" subType="ABSOLUTE"/>
+                <DataItem category="EVENT" id="prog" name="program" type="PROGRAM"/>
+                <DataItem category="EVENT" id="exec" name="execution" type="EXECUTION"/>
+                <DataItem category="EVENT" id="tool_id" name="tool_id" type="TOOL_ID"/>
+                <DataItem category="SAMPLE" id="Frt" nativeUnits="MILLIMETER/MINUTE" subType="ACTUAL" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+              </DataItems>
+            </Path>
+          </Components>
+        </Controller>
+
+      </Components>
+    </Device>
+  </Devices>
+</MTConnectDevices>

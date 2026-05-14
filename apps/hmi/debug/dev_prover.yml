@@ -1,0 +1,30 @@
+# ---------------------------------------------------------------------------------------
+# 🏭 OpenFactory Device Configuration File for PROVER3018 CNC
+#
+# To be used in the Dev Container of this repo
+# ---------------------------------------------------------------------------------------
+
+devices:
+
+  # CNC - MTConnect connection
+  prover3018:
+    uuid: PROVER3018
+    connector:
+      type: mtconnect
+      agent:
+        port: 3101
+        device_xml: prover.xml
+        adapter:
+          ip: ${CNC_IP}
+          port: 7878
+
+  # CNC - OPC UA connection
+  prover3018-supervisor:
+    uuid: PROVER3018-SUPERVISOR
+    connector:
+      type: opcua
+      server:
+        uri: opc.tcp://${CNC_IP}:4840
+      methods:
+        prover3018-supervisor:
+          browse_path: 0:Root/0:Objects/2:PROVER3018

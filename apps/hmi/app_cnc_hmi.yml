@@ -1,0 +1,29 @@
+# ---------------------------------------------------------------------------------------
+# 🏭 OpenFactory App configuration file for the CNC HMI
+#
+# Deploy with:
+#   ofa device up 
+# ---------------------------------------------------------------------------------------
+# Environment variables:
+#
+# Required:
+#   NFS_SERVER               nfs server for storage
+#
+# Optional:
+#   CNC_HMI_APP_LOG_LEVEL    Log level (default: INFO)
+#
+# ---------------------------------------------------------------------------------------
+
+apps:
+
+  cnc-hmi-app:
+    uuid: CNC-HMI-APP
+    image: cnc-hmi-app
+    environment:
+      - LOG_LEVEL=${CNC_HMI_APP_LOG_LEVEL:-DEBUG}
+    routing:
+      expose: true
+      port: 5000
+      hostname: cnc-hmi-app
+    networks:
+      - factory-net
