@@ -1,8 +1,0 @@
-git+https://github.com/Demo-Smart-Factory-Concordia-University/MTCAdapters.git
-git+https://github.com/rwuthric/PyKSQL.git
-
-flask
-flask-sqlalchemy
-flask-admin
-flask-login
-flask-wtf
