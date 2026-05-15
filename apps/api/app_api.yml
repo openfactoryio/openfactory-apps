@@ -1,0 +1,26 @@
+# ---------------------------------------------------------------------------------------
+# 🏭 OpenFactory App configuration file for the OpenFactory API
+#
+# Deploy with:
+#   ofa device up app_api.yml
+# ---------------------------------------------------------------------------------------
+# Environment variables:
+#
+# Optional:
+#   OPENFACTORY_API_LOG_LEVEL    Log level (default: INFO)
+#
+# ---------------------------------------------------------------------------------------
+
+apps:
+
+  cnc-hmi-app:
+    uuid: OPENFACTORY-API
+    image: openfactory-api
+    environment:
+      - LOG_LEVEL=${OPENFACTORY_API_LOG_LEVEL:-DEBUG}
+    routing:
+      expose: true
+      port: 4000
+      hostname: openfactory-api
+    networks:
+      - factory-net
