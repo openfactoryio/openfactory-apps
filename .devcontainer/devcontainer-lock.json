@@ -1,0 +1,19 @@
+{
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2.16.1": {
+      "version": "2.16.1",
+      "resolved": "ghcr.io/devcontainers/features/docker-in-docker@sha256:ce078b7bf7d9ef3bcb9813b32103795d8d72172446890b64772cbe1dec6baafd",
+      "integrity": "sha256:ce078b7bf7d9ef3bcb9813b32103795d8d72172446890b64772cbe1dec6baafd"
+    },
+    "ghcr.io/openfactoryio/openfactory-sdk/infra:0.5.4": {
+      "version": "0.5.4",
+      "resolved": "ghcr.io/openfactoryio/openfactory-sdk/infra@sha256:40c521e89a2053b5aab041cc484bac8f25ddf1abf68244009f5f0bb22646fd84",
+      "integrity": "sha256:40c521e89a2053b5aab041cc484bac8f25ddf1abf68244009f5f0bb22646fd84"
+    },
+    "ghcr.io/openfactoryio/openfactory-sdk/opcua-connector:0.5.4": {
+      "version": "0.5.4",
+      "resolved": "ghcr.io/openfactoryio/openfactory-sdk/opcua-connector@sha256:b6905d539e03a085d4464493353de1b22bb15ad8276b08250ec49e9b69b9aa69",
+      "integrity": "sha256:b6905d539e03a085d4464493353de1b22bb15ad8276b08250ec49e9b69b9aa69"
+    }
+  }
+}
