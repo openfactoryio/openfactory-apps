@@ -11,7 +11,7 @@
 FROM python:3.12-slim AS builder
 
 # Argument for version management
-ARG OFA_VERSION=main
+ARG OPENFACTORY_VERSION=main
 
 # Install git
 RUN apt-get update && apt-get install -y git
@@ -24,7 +24,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir \
-       "openfactory[flask] @ git+https://github.com/openfactoryio/openfactory-core.git@${OFA_VERSION}" \
+       "openfactory[flask] @ git+https://github.com/openfactoryio/openfactory-core.git@${OPENFACTORY_VERSION}" \
     && pip install -r requirements.txt
 
 # ---- final stage ----
