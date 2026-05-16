@@ -32,15 +32,15 @@ FROM python:3.12-slim
 
 # Arguments for non-root user creation
 ARG UNAME=cnc-hmi
-ARG UID=1200
-ARG GID=1200
+ARG USER_UID=1200
+ARG USER_GID=1200
 
 # Argument for version management
 ARG VERSION=dev
 
 # Create runtime user/group
 RUN groupadd --gid $GID $UNAME \
-    && useradd --create-home --uid $UID --gid $GID $UNAME
+    && useradd --create-home --uid $USER_UID --gid $USER_GID $UNAME
 
 # Security: no package manager leftovers
 RUN rm -rf /var/lib/apt/lists/*

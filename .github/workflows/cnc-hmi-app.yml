@@ -58,7 +58,7 @@ jobs:
             ${{ env.TAGS }}
             ${{ env.TAGS_LATEST }}
           build-args: |
-              UID=${{ vars.FACTORY_USER_UID }}
-              GID=${{ vars.FACTORY_USER_GID }}
+              USER_UID=${{ vars.FACTORY_USER_UID }}
+              USER_GID=${{ vars.FACTORY_USER_GID }}
               VERSION=${{ env.VERSION }}
               OPENFACTORY_VERSION=${{ env.OPENFACTORY_VERSION }}
