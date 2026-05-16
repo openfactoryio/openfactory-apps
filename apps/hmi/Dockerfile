@@ -39,7 +39,7 @@ ARG USER_GID=1200
 ARG VERSION=dev
 
 # Create runtime user/group
-RUN groupadd --gid $GID $UNAME \
+RUN groupadd --gid $USER_GID $UNAME \
     && useradd --create-home --uid $USER_UID --gid $USER_GID $UNAME
 
 # Security: no package manager leftovers
