@@ -2,7 +2,7 @@
   "name": "OpenFactory-Apps - Collection of OpenFactory Apps",
   "image": "ghcr.io/openfactoryio/devcontainer-py3.14:v0.5.4",
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2.16.1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:3.0.1": {},
     "ghcr.io/openfactoryio/openfactory-sdk/infra:0.5.4": {},
     "ghcr.io/openfactoryio/openfactory-sdk/opcua-connector:0.5.4": {}
   },
