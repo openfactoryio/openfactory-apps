@@ -3,7 +3,6 @@ import os
 
 class Config:
     APPLICATION_ROOT = os.environ.get("OPENFACTORY_ROOT_PATH", "")
-    INSTANCE_PATH = os.environ.get('INSTANCE_PATH') or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     FLASK_ADMIN_SWATCH = 'cerulean'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///hmi.db'
