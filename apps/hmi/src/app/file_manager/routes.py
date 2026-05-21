@@ -16,7 +16,9 @@ from . import file_manager_blueprint
 def index():
     if 'current_folder' not in session:
         session['current_folder'] = Config.NC_FILES_FOLDER
+        current_app.ofa_app.logger.debug('current_folder was not in session')
     current_folder = session.get('current_folder')
+    current_app.ofa_app.logger.debug(f"current_folder: {current_folder}")
     files = []
     if current_folder == Config.NC_FILES_FOLDER:
         folders = []
@@ -52,11 +54,13 @@ def index():
 @login_required
 def open_folder():
     new_folder = request.form.get('selected_folder_open')
+    current_app.ofa_app.logger.debug(f"folder to open: {new_folder}")
     if new_folder:
         if new_folder == '..':
             session['current_folder'] = os.path.dirname(session['current_folder'])
         else:
             session['current_folder'] = os.path.join(session['current_folder'], new_folder)
+        session.modified = True
         return redirect(url_for('files.index'))
     else:
         return '', 204
