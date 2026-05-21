@@ -4,6 +4,7 @@ import threading
 import time
 from flask import Response
 from openfactory.assets import Asset
+from ..models.cncsettings import CNCSettings
 
 
 # SSE generator
@@ -27,15 +28,13 @@ def start_async_stream(queue, ksql, app):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
+    with app.app_context():
+        uuid = CNCSettings.query.filter_by(key="cnc_uuid").first()
+    if uuid is None:
+        return
+    cnc = Asset(asset_uuid=uuid.value, ksqlClient=ksql)
+
     while True:
-        from ..models.cncsettings import CNCSettings
-        with app.app_context():
-            uuid = CNCSettings.query.filter_by(key="cnc_uuid").first()
-
-        if uuid is None:
-            return
-
-        cnc = Asset(asset_uuid=uuid.value, ksqlClient=ksql)
 
         # get all samples
         state = cnc.samples()
