@@ -116,6 +116,7 @@ class CNC_HMI(OpenFactoryFlaskApp):
 app = CNC_HMI(
     ksqlClient=ksql,
     bootstrap_servers=os.getenv("KAFKA_BROKER", "localhost:9092"),
+    loglevel=os.getenv("LOG_LEVEL", "INFO")
 )
 
 app.run()
