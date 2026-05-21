@@ -42,6 +42,10 @@ ARG VERSION=dev
 RUN groupadd --gid $USER_GID $UNAME \
     && useradd --create-home --uid $USER_UID --gid $USER_GID $UNAME
 
+# Create mountpoints
+RUN mkdir /mnt/instance
+RUN mkdir /mnt/nc_files
+
 # Security: no package manager leftovers
 RUN rm -rf /var/lib/apt/lists/*
 
