@@ -52,15 +52,22 @@ class CNC_HMI(OpenFactoryFlaskApp):
 
     def create_flask_app(self):
         """ Flask app factory """
+        # setup flask instance path
+        instance_storage = self.storage.get("instance")
+        if instance_storage is None:
+            instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+        else:
+            instance_path = instance_storage.root
+
         app = Flask(__name__,
-                    instance_path=Config.INSTANCE_PATH)
+                    instance_path=instance_path)
         app.config.from_object(Config)
 
         # setup CSRF pretection
         CSRFProtect(app)
 
         # setup instance folder
-        Path(Config.INSTANCE_PATH).mkdir(parents=True, exist_ok=True)
+        Path(instance_path).mkdir(parents=True, exist_ok=True)
 
         # initialize db
         db.init_app(app)

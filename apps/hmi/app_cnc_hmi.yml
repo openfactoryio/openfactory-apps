@@ -7,7 +7,7 @@
 # Environment variables:
 #
 # Required:
-#   NFS_SERVER               nfs server for storage
+#   CONTAINER_IP             nfs server for storage
 #
 # Optional:
 #   CNC_HMI_APP_LOG_LEVEL    Log level (default: INFO)
@@ -19,11 +19,23 @@ apps:
   cnc-hmi-app:
     uuid: CNC-HMI-APP
     image: cnc-hmi-app
+    runtime_uid: 1200
+    runtime_gid: 1200
+
+    storage:
+      instance:
+        type: nfs
+        server: ${CONTAINER_IP}
+        remote_path: /ofa/nfsvolume
+        mount_point: /mnt
+
     environment:
       - LOG_LEVEL=${CNC_HMI_APP_LOG_LEVEL:-DEBUG}
+
     routing:
       expose: true
       port: 5000
       hostname: cnc-hmi-app
+
     networks:
       - factory-net
