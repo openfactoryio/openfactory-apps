@@ -59,6 +59,13 @@ class CNC_HMI(OpenFactoryFlaskApp):
         else:
             instance_path = instance_storage.root
 
+        # setup nc_files_folder path
+        nc_files_storage = self.storage.get("nc_files")
+        if nc_files_storage is None:
+            Config.NC_FILES_FOLDER = str(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance/nc_files'))
+        else:
+            Config.NC_FILES_FOLDER = str(nc_files_storage.root)
+
         app = Flask(__name__,
                     instance_path=instance_path)
         app.config.from_object(Config)

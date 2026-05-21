@@ -28,6 +28,11 @@ apps:
         server: ${CONTAINER_IP}
         remote_path: /ofa/nfsvolume
         mount_point: /mnt/instance
+      nc_files:
+        type: nfs
+        server: ${CONTAINER_IP}
+        remote_path: /ofa/nfsvolume
+        mount_point: /mnt/nc_files
 
     environment:
       - LOG_LEVEL=${CNC_HMI_APP_LOG_LEVEL:-DEBUG}
