@@ -3,9 +3,9 @@
   "image": "ghcr.io/openfactoryio/devcontainer-py3.14:v0.6.0",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:3.0.1": {},
-    "ghcr.io/openfactoryio/openfactory-sdk/infra:0.6.0": {},
-    "ghcr.io/openfactoryio/openfactory-sdk/opcua-connector:0.6.0": {},
-    "ghcr.io/openfactoryio/openfactory-sdk/nfs-server:0.6.0": {
+    "ghcr.io/openfactoryio/openfactory-sdk/infra:0.6.2": {},
+    "ghcr.io/openfactoryio/openfactory-sdk/connectors:0.6.2": {},
+    "ghcr.io/openfactoryio/openfactory-sdk/nfs-server:0.6.2": {
       "nfs-mountpoint": "/ofa/nfsvolume",
       "nfs-uid": "1200",
       "nfs-gid": "1200"
