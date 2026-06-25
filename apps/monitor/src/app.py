@@ -5,11 +5,11 @@ import statistics
 from typing import Annotated
 from datetime import datetime, timezone
 from openfactory import OpenFactory
-from openfactory.assets import Asset, AssetAttribute
+from openfactory.assets import Asset
 from openfactory.assets.utils import current_timestamp
 from openfactory.apps import OpenFactoryFastAPIApp, SampleAttribute, EventAttribute, ofa_method
 from openfactory.kafka import KSQLDBClient
-from openfactory.utils import register_device_connector, deregister_device_connector, deregister_asset
+from openfactory.utils import register_device_connector, deregister_device_connector
 from openfactory.schemas.devices import Device
 from openfactory.schemas.connectors.shdr import SHDRConnectorSchema
 from openfactory.connectors.shdr.shdr_connector import SHDRConnector
@@ -67,6 +67,9 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         metrics.BUILD_INFO.info({
             "version": os.environ.get('APPLICATION_VERSION', 'UNKNOWN'),
         })
+
+        # Register metrics with OpenFactory
+        self.register_prometheus_metrics(metrics_port=4000, metrics_path=PROMETHEUS_METRICS_PATH)
 
         # Expose Prometheus metrics
         self.api.get(PROMETHEUS_METRICS_PATH)(metrics.metrics_endpoint)
