@@ -19,9 +19,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install dependencies
-COPY requirements.txt . 
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir \
        "openfactory[fastapi] @ git+https://github.com/openfactoryio/openfactory-core.git@${OFA_VERSION}"
 
