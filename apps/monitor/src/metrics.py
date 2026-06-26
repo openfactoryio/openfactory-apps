@@ -30,7 +30,7 @@ APP_END_TO_END_LATENCY = Gauge(
 )
 
 INGESTION_LATENCY = Gauge(
-    "aasset_attribute_ingestion_latency_seconds",
+    "asset_attribute_ingestion_latency_seconds",
     "Latency from Asset Attribute emission to ingestion"
 )
 
