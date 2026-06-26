@@ -49,6 +49,16 @@ FAN_OUT_LAYER_LATENCY = Gauge(
     "Latency introduced by the fan-out layer"
 )
 
+SHDR_LATENCY = Gauge(
+    "shdr_end_to_end_latency_seconds",
+    "End-to-end latency for SHDR devices"
+)
+
+SHDR_GATEWAY = Gauge(
+    "shdr_gateway_latency_seconds",
+    "Latency introduced by the SHDR Gateway"
+)
+
 
 def metrics_endpoint():
     """
