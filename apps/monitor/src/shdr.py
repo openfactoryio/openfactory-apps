@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timezone
+from openfactory.assets.utils.time_methods import current_timestamp
 
 
 class SHDRServer:
@@ -52,7 +52,7 @@ class SHDRServer:
         self.logger.info(f"SHDR client connected: {peer}")
         try:
             while True:
-                ts = datetime.now(timezone.utc).isoformat()
+                ts = current_timestamp()
                 writer.write(f"{ts}|probe|{ts}\n".encode())
                 await writer.drain()
                 await asyncio.sleep(1)
