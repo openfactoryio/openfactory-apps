@@ -18,6 +18,7 @@ apps:
     image: openfactory-monitor
     environment:
       - LOG_LEVEL=${OPENFACTORY_MONITOR_LOG_LEVEL:-INFO}
+      - SHDR_PROBE = true
     routing:
       expose: true
       port: 4000
