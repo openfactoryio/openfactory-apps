@@ -58,10 +58,9 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.shdr_latency_data = []
 
         # OpenFactory connectors
-        self.shdr_connector = SHDRConnector(
-            deployment_strategy=None,
-            ksqlClient=self.ksql,
-            bootstrap_servers=self.bootstrap_servers)
+        self.shdr_connector = None
+        if os.getenv("SHDR_PROBE") == 'true':
+            self.monitor_shdr_connector()
 
         # Build info metrics
         metrics.BUILD_INFO.info({
@@ -74,15 +73,9 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         # Expose Prometheus metrics
         self.api.get(PROMETHEUS_METRICS_PATH)(metrics.metrics_endpoint)
 
-        # Mocked SHDR device
-        self.shdr = SHDRServer(self.logger)
-        self.connect_shdr_probe()
-        self.shdr_asset = Asset(asset_uuid="SHDR-PROBE", ksqlClient=self.ksql)
-        self.shdr_asset.subscribe_to_attribute(attribute_id='probe', on_message=self.on_shdr_probe_event)
-
     @ofa_method()
     def probe_cmd(self, probe: Annotated[str, "Time stamp"]):
-        """ Probe command for latency calculations. """
+        """ Probe command for OpenFactory command latency calculations. """
         # Current time
         now_iso = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
         now_time = datetime.fromisoformat(now_iso.replace('Z', '+00:00'))
@@ -99,6 +92,20 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         )
 
         self.logger.debug(f"Probe command {probe}, latency {end_to_end_latency}")
+
+    def monitor_shdr_connector(self):
+        """ Configure montoriing of the SHDR connector """
+        self.logger.info('Configure SHDR Connector monitoring')
+
+        self.shdr_connector = SHDRConnector(
+            deployment_strategy=None,
+            ksqlClient=self.ksql,
+            bootstrap_servers=self.bootstrap_servers)
+
+        self.shdr = SHDRServer(self.logger)
+        self.connect_shdr_probe()
+        self.shdr_asset = Asset(asset_uuid="SHDR-PROBE", ksqlClient=self.ksql)
+        self.shdr_asset.subscribe_to_attribute(attribute_id='probe', on_message=self.on_shdr_probe_event)
 
     def connect_shdr_probe(self):
         """ Connect the mocked SHDR device. """
@@ -258,12 +265,17 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             self.shdr_end_to_end_latency = shdr_end_to_end_latency
             self.shdr_gateway_latency = shdr_gateway_latency
 
+            metrics.SHDR_LATENCY.set(shdr_end_to_end_latency)
+            metrics.SHDR_GATEWAY.set(shdr_gateway_latency)
+
         self.latency_data = []
         self.cmd_latency_data = []
 
     async def async_main_loop(self):
 
-        asyncio.create_task(self.shdr.start())
+        if self.shdr_connector:
+            self.logger.info('Starting SHDR Connector monitoring')
+            asyncio.create_task(self.shdr.start())
         last_metrics_update = 0
 
         while True:
@@ -289,7 +301,8 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
 
     def app_event_loop_stopped(self):
         """ Shutdown operations. """
-        self.deconnect_shdr_probe()
+        if self.shdr_connector:
+            self.deconnect_shdr_probe()
 
 
 app = OpenFactoryMonitorApp(
