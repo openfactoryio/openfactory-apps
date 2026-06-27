@@ -3,7 +3,7 @@ import asyncio
 import time
 import statistics
 from typing import Annotated
-from datetime import datetime, timezone
+from datetime import datetime
 from openfactory import OpenFactory
 from openfactory.assets import Asset
 from openfactory.assets.utils import current_timestamp
@@ -77,8 +77,8 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
     def probe_cmd(self, probe: Annotated[str, "Time stamp"]):
         """ Probe command for OpenFactory command latency calculations. """
         # Current time
-        now_iso = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-        now_time = datetime.fromisoformat(now_iso.replace('Z', '+00:00'))
+        now = current_timestamp()
+        now_time = datetime.fromisoformat(now.replace('Z', '+00:00'))
         cmd_time = datetime.fromisoformat(probe.replace('Z', '+00:00'))
 
         # Compute time difference in seconds
@@ -139,25 +139,23 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         """ Gather latency data for SHDR device. """
 
         # Current time
-        now_iso = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+        now = current_timestamp()
 
         # Extract timestamp from message
         device_ts = msg_value['VALUE']
         send_to_kafka_ts = msg_value['attributes']['ingestion_timestamp']
-
         kafka_ts = msg_value['attributes']['kafka_timestamp']
         forwarder_ts = msg_value['attributes']['asset_forwarder_timestamp']
 
         # Compute time difference in seconds
+        now_time = datetime.fromisoformat(now.replace('Z', '+00:00'))
         device_time = datetime.fromisoformat(device_ts.replace('Z', '+00:00'))
-        now_time = datetime.fromisoformat(now_iso.replace('Z', '+00:00'))
         send_to_kafka_time = datetime.fromisoformat(send_to_kafka_ts.replace('Z', '+00:00'))
+        kafka_time = datetime.fromisoformat(kafka_ts.replace('Z', '+00:00'))
+        forwarder_time = datetime.fromisoformat(forwarder_ts.replace('Z', '+00:00'))
 
         end_to_end_latency = (now_time - device_time).total_seconds()
         shdr_gateway_latency = (send_to_kafka_time - device_time).total_seconds()
-
-        kafka_time = datetime.fromisoformat(kafka_ts.replace('Z', '+00:00'))
-        forwarder_time = datetime.fromisoformat(forwarder_ts.replace('Z', '+00:00'))
         kafka_latency = (forwarder_time - kafka_time).total_seconds()
         fan_out_layer_latency = (now_time - forwarder_time).total_seconds()
 
@@ -166,6 +164,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             {
                 'shdr_end_to_end_latency': end_to_end_latency,
                 'shdr_gateway_latency': shdr_gateway_latency,
+                'shdr_kafka_latency': kafka_latency,
             }
         )
 
@@ -180,7 +179,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         """ Gather latency data for OpenFactoryApp attribute. """
 
         # Current time
-        now_iso = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+        now = current_timestamp()
 
         # Extract timestamp from message
         attribute_ts = msg_value['VALUE']
@@ -189,11 +188,12 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         forwarder_ts = msg_value['attributes']['asset_forwarder_timestamp']
 
         # Compute time difference in seconds
+        now_time = datetime.fromisoformat(now.replace('Z', '+00:00'))
         attribute_time = datetime.fromisoformat(attribute_ts.replace('Z', '+00:00'))
         app_time = datetime.fromisoformat(app_ts.replace('Z', '+00:00'))
         kafka_time = datetime.fromisoformat(kafka_ts.replace('Z', '+00:00'))
         forwarder_time = datetime.fromisoformat(forwarder_ts.replace('Z', '+00:00'))
-        now_time = datetime.fromisoformat(now_iso.replace('Z', '+00:00'))
+
         end_to_end_latency = (now_time - attribute_time).total_seconds()
         ksqldb_latency = (app_time - attribute_time).total_seconds()
         ingestion_latency = (kafka_time - app_time).total_seconds()
@@ -204,7 +204,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.latency_data.append(
             {
                 'app_ts': app_ts,
-                'now': now_iso,
+                'now': now,
                 'end_to_end_latency': end_to_end_latency,
                 'ksqldb_latency': ksqldb_latency,
                 'ingestion_latency': ingestion_latency,
@@ -262,11 +262,13 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         if self.shdr_latency_data:
             shdr_end_to_end_latency = statistics.mean([x['shdr_end_to_end_latency'] for x in self.shdr_latency_data])
             shdr_gateway_latency = statistics.mean([x['shdr_gateway_latency'] for x in self.shdr_latency_data])
+            shdr_kafka_latency = statistics.mean([x['shdr_kafka_latency'] for x in self.shdr_latency_data])
             self.shdr_end_to_end_latency = shdr_end_to_end_latency
             self.shdr_gateway_latency = shdr_gateway_latency
 
             metrics.SHDR_LATENCY.set(shdr_end_to_end_latency)
-            metrics.SHDR_GATEWAY.set(shdr_gateway_latency)
+            metrics.SHDR_GATEWAY_LATENCY.set(shdr_gateway_latency)
+            metrics.SHDR_KAFKA_LATENCY.set(shdr_kafka_latency)
 
         self.latency_data = []
         self.cmd_latency_data = []
@@ -285,17 +287,9 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
                 self.update_metrics()
                 last_metrics_update = now
 
-            now_iso = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-            self.probe_event = now_iso
-            # self.producer.send_asset_attribute(
-            #     self.asset_uuid,
-            #     AssetAttribute(
-            #         id='probe_event',
-            #         value=now_iso,
-            #         tag='tag',
-            #         type='Events')
-            #     )
-            self.method('probe_cmd', sender_uuid=self.asset_uuid, args=[('probe', now_iso)])
+            now_ofa = current_timestamp()
+            self.probe_event = now_ofa
+            self.method('probe_cmd', sender_uuid=self.asset_uuid, args=[('probe', now_ofa)])
 
             await asyncio.sleep(1)
 
