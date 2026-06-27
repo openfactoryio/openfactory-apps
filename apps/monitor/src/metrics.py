@@ -41,7 +41,7 @@ KSQLLATENCY = Gauge(
 
 KAFKA_LATENCY = Gauge(
     "kafka_latency_seconds",
-    "Latency introduced by Kafka transport"
+    "Latency introduced by Kafka transport (inside Kafka cluster)"
 )
 
 FAN_OUT_LAYER_LATENCY = Gauge(
@@ -54,9 +54,14 @@ SHDR_LATENCY = Gauge(
     "End-to-end latency for SHDR devices"
 )
 
-SHDR_GATEWAY = Gauge(
+SHDR_GATEWAY_LATENCY = Gauge(
     "shdr_gateway_latency_seconds",
     "Latency introduced by the SHDR Gateway"
+)
+
+SHDR_KAFKA_LATENCY = Gauge(
+    "shdr_kafka_latency_seconds",
+    "Latency introduced by the SHDR Kafka transport (producer to asset-forwarder)"
 )
 
 
