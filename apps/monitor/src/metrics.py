@@ -49,6 +49,21 @@ FAN_OUT_LAYER_LATENCY = Gauge(
     "Latency introduced by the fan-out layer"
 )
 
+OPCUA_LATENCY = Gauge(
+    "opcua_end_to_end_latency_seconds",
+    "End-to-end latency for OPCUA devices"
+)
+
+OPCUA_GATEWAY_LATENCY = Gauge(
+    "opcua_gateway_latency_seconds",
+    "Latency introduced by the OPCUA Gateway"
+)
+
+OPCUA_KAFKA_LATENCY = Gauge(
+    "opcua_kafka_latency_seconds",
+    "Latency introduced by the OPCUA Kafka transport (producer to asset-forwarder)"
+)
+
 SHDR_LATENCY = Gauge(
     "shdr_end_to_end_latency_seconds",
     "End-to-end latency for SHDR devices"

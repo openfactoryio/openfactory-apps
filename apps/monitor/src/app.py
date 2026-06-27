@@ -11,8 +11,11 @@ from openfactory.apps import OpenFactoryFastAPIApp, SampleAttribute, EventAttrib
 from openfactory.kafka import KSQLDBClient
 from openfactory.utils import register_device_connector, deregister_device_connector
 from openfactory.schemas.devices import Device
+from openfactory.schemas.connectors.opcua import OPCUAConnectorSchema
+from openfactory.connectors.opcua.opcua_connector import OPCUAConnector
 from openfactory.schemas.connectors.shdr import SHDRConnectorSchema
 from openfactory.connectors.shdr.shdr_connector import SHDRConnector
+from .opcua import OPCUAServer
 from .shdr import SHDRServer
 from . import metrics
 
@@ -44,6 +47,11 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
 
     shdr_end_to_end_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
     shdr_gateway_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+    shdr_kafka_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+
+    ocua_end_to_end_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+    ocua_gateway_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+    ocua_kafka_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
 
     probe_event = EventAttribute(tag='OpenFactory.Metrics')
 
@@ -55,12 +63,16 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.subscribe_to_attribute('probe_event', on_message=self.on_probe_event)
         self.latency_data = []
         self.cmd_latency_data = []
+        self.opcua_latency_data = []
         self.shdr_latency_data = []
 
         # OpenFactory connectors
         self.shdr_connector = None
         if os.getenv("SHDR_PROBE") == 'true':
             self.monitor_shdr_connector()
+        self.opcua_connector = None
+        if os.getenv("OPCUA_PROBE") == 'true':
+            self.monitor_opcua_connector()
 
         # Build info metrics
         metrics.BUILD_INFO.info({
@@ -93,8 +105,51 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
 
         self.logger.debug(f"Probe command {probe}, latency {end_to_end_latency}")
 
+    def monitor_opcua_connector(self):
+        """ Configure monitoring of the OPCUA connector """
+        self.logger.info('Configure OPCUA Connector monitoring')
+
+        self.opcua_connector = OPCUAConnector(
+            deployment_strategy=None,
+            ksqlClient=self.ksql,
+            bootstrap_servers=self.bootstrap_servers)
+
+        self.opcua = OPCUAServer(self.logger)
+        self.connect_opcua_probe()
+        self.opcua_asset = Asset(asset_uuid="OPCUA-PROBE", ksqlClient=self.ksql)
+        self.opcua_asset.subscribe_to_attribute(attribute_id='probe', on_message=self.on_opcua_probe_event)
+
+    def connect_opcua_probe(self):
+        """ Connect the mocked OPC UA device. """
+        data = {
+            "type": "opcua",
+            "server": {
+                "uri": f"opc.tcp://{self.asset_uuid.lower()}:4840",
+                "subscription": {
+                    "publishing_interval": 10,
+                },
+            },
+            "variables": {
+                "probe": {
+                    "browse_path": "0:Root/0:Objects/2:ProbeObject/2:Probe",
+                    "tag": "Probe"
+                }
+            },
+        }
+        connector_schema = OPCUAConnectorSchema(**data)
+        opcua_device = Device(uuid='OPCUA-PROBE', connector=connector_schema)
+        self.opcua_connector.deploy(device=opcua_device, yaml_config_file="")
+        register_device_connector(opcua_device, self.ksql)
+
+    def deconnect_opcua_probe(self):
+        """ Deconnect the mocked OPCUA device. """
+        self.opcua_asset.close()
+        self.logger.info("Deconnect OPCUA Probe")
+        self.opcua_connector.tear_down(device_uuid="OPCUA-PROBE")
+        deregister_device_connector(device_uuid="OPCUA-PROBE", bootstrap_servers=self.bootstrap_servers)
+
     def monitor_shdr_connector(self):
-        """ Configure montoriing of the SHDR connector """
+        """ Configure monitoring of the SHDR connector """
         self.logger.info('Configure SHDR Connector monitoring')
 
         self.shdr_connector = SHDRConnector(
@@ -121,10 +176,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             }
         }
         connector_schema = SHDRConnectorSchema(**data)
-        shdr_device = Device(
-            uuid='SHDR-PROBE',
-            connector=connector_schema
-        )
+        shdr_device = Device(uuid='SHDR-PROBE', connector=connector_schema)
         self.shdr_connector.deploy(device=shdr_device, yaml_config_file="")
         register_device_connector(shdr_device, self.ksql)
 
@@ -134,6 +186,46 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.logger.info("Deconnect SHDR Probe")
         self.shdr_connector.tear_down(device_uuid="SHDR-PROBE")
         deregister_device_connector(device_uuid="SHDR-PROBE", bootstrap_servers=self.bootstrap_servers)
+
+    def on_opcua_probe_event(self, msg_key, msg_value):
+        """ Gather latency data for OPCUA device. """
+
+        # Current time
+        now = current_timestamp()
+
+        # Extract timestamp from message
+        device_ts = msg_value['VALUE']
+        send_to_kafka_ts = msg_value['attributes']['ingestion_timestamp']
+        kafka_ts = msg_value['attributes']['kafka_timestamp']
+        forwarder_ts = msg_value['attributes']['asset_forwarder_timestamp']
+
+        # Compute time difference in seconds
+        now_time = datetime.fromisoformat(now.replace('Z', '+00:00'))
+        device_time = datetime.fromisoformat(device_ts.replace('Z', '+00:00'))
+        send_to_kafka_time = datetime.fromisoformat(send_to_kafka_ts.replace('Z', '+00:00'))
+        kafka_time = datetime.fromisoformat(kafka_ts.replace('Z', '+00:00'))
+        forwarder_time = datetime.fromisoformat(forwarder_ts.replace('Z', '+00:00'))
+
+        end_to_end_latency = (now_time - device_time).total_seconds()
+        shdr_gateway_latency = (send_to_kafka_time - device_time).total_seconds()
+        kafka_latency = (forwarder_time - kafka_time).total_seconds()
+        fan_out_layer_latency = (now_time - forwarder_time).total_seconds()
+
+        # Append as dict to list
+        self.opcua_latency_data.append(
+            {
+                'opcua_end_to_end_latency': end_to_end_latency,
+                'opcua_gateway_latency': shdr_gateway_latency,
+                'opcua_kafka_latency': kafka_latency,
+            }
+        )
+
+        self.logger.info(
+            f"OPCUA end-to-end latency={end_to_end_latency:.3f}s, "
+            f"OPCUA Gateway latency={shdr_gateway_latency:.3f}s, "
+            f"Kafka latency={kafka_latency:.3f}s, "
+            f"Fan-out latency={fan_out_layer_latency:.3f}s, "
+        )
 
     def on_shdr_probe_event(self, msg_key, msg_value):
         """ Gather latency data for SHDR device. """
@@ -265,19 +357,37 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             shdr_kafka_latency = statistics.mean([x['shdr_kafka_latency'] for x in self.shdr_latency_data])
             self.shdr_end_to_end_latency = shdr_end_to_end_latency
             self.shdr_gateway_latency = shdr_gateway_latency
+            self.shdr_kafka_latency = shdr_kafka_latency
 
             metrics.SHDR_LATENCY.set(shdr_end_to_end_latency)
             metrics.SHDR_GATEWAY_LATENCY.set(shdr_gateway_latency)
             metrics.SHDR_KAFKA_LATENCY.set(shdr_kafka_latency)
 
+        if self.opcua_latency_data:
+            opcua_end_to_end_latency = statistics.mean([x['opcua_end_to_end_latency'] for x in self.opcua_latency_data])
+            opcua_gateway_latency = statistics.mean([x['opcua_gateway_latency'] for x in self.opcua_latency_data])
+            opcua_kafka_latency = statistics.mean([x['opcua_kafka_latency'] for x in self.opcua_latency_data])
+            self.opcua_end_to_end_latency = opcua_end_to_end_latency
+            self.opcua_gateway_latency = opcua_gateway_latency
+            self.opcua_kafka_latency = opcua_kafka_latency
+
+            metrics.OPCUA_LATENCY.set(opcua_end_to_end_latency)
+            metrics.OPCUA_GATEWAY_LATENCY.set(opcua_gateway_latency)
+            metrics.OPCUA_KAFKA_LATENCY.set(opcua_kafka_latency)
+
         self.latency_data = []
         self.cmd_latency_data = []
+        self.opcua_latency_data = []
+        self.shdr_latency_data = []
 
     async def async_main_loop(self):
 
         if self.shdr_connector:
             self.logger.info('Starting SHDR Connector monitoring')
             asyncio.create_task(self.shdr.start())
+        if self.opcua_connector:
+            self.logger.info('Starting OPCUA Connector monitoring')
+            asyncio.create_task(self.opcua.start())
         last_metrics_update = 0
 
         while True:
@@ -297,6 +407,8 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         """ Shutdown operations. """
         if self.shdr_connector:
             self.deconnect_shdr_probe()
+        if self.opcua_connector:
+            self.deconnect_opcua_probe()
 
 
 app = OpenFactoryMonitorApp(
