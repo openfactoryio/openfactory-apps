@@ -21,7 +21,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Install dependencies
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir \
-       "openfactory[fastapi] @ git+https://github.com/openfactoryio/openfactory-core.git@${OFA_VERSION}"
+       "openfactory[fastapi] @ git+https://github.com/openfactoryio/openfactory-core.git@${OFA_VERSION}" \
+    && pip install --no-cache-dir asyncua
 
 # ---- final stage ----
 FROM python:3.12-slim

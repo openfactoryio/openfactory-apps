@@ -12,6 +12,7 @@ dev = [
     "tomlkit",
     "flask",
     "fastapi",
+    "asyncua",
 ]
 
 [build-system]
