@@ -220,7 +220,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             }
         )
 
-        self.logger.info(
+        self.logger.debug(
             f"OPCUA end-to-end latency={end_to_end_latency:.3f}s, "
             f"OPCUA Gateway latency={shdr_gateway_latency:.3f}s, "
             f"Kafka latency={kafka_latency:.3f}s, "
@@ -260,7 +260,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             }
         )
 
-        self.logger.info(
+        self.logger.debug(
             f"SHDR end-to-end latency={end_to_end_latency:.3f}s, "
             f"SHDR Gateway latency={shdr_gateway_latency:.3f}s, "
             f"Kafka latency={kafka_latency:.3f}s, "
@@ -305,7 +305,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             }
         )
 
-        self.logger.info(
+        self.logger.debug(
             f"End-to-end latency={end_to_end_latency:.3f}s, "
             f"Ksqldb latency={ksqldb_latency:.3f}s, "
             f"Ingestion latency={ingestion_latency:.3f}s, "
