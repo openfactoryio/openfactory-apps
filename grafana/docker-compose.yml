@@ -1,0 +1,34 @@
+services:
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+    volumes:
+      # Persist Grafana database (users, dashboards, etc.)
+      - grafana-data:/var/lib/grafana
+
+      # Provision datasources
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+
+      # Provision dashboards
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+
+    restart: unless-stopped
+
+    networks:
+      - factory-net
+
+volumes:
+  grafana-data:
+
+networks:
+  factory-net:
+    external: true
