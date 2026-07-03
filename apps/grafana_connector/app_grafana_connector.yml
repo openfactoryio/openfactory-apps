@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------------------------
+# 🏭 OpenFactory App configuration file for the OpenFactory Grafana Connector
+#
+# Deploy with:
+#   ofa device up app_grafana_connector.yml
+# ---------------------------------------------------------------------------------------
+# Environment variables:
+#
+# Optional:
+#   OPENFACTORY_GRAFANA_CONNECTOR_LOG_LEVEL    Log level (default: INFO)
+#
+# ---------------------------------------------------------------------------------------
+
+apps:
+
+  grafana-connector-app:
+    uuid: OPENFACTORY-GRAFANA-CONNECTOR
+    image: openfactory-grafana-connector
+    environment:
+      - LOG_LEVEL=${OPENFACTORY_GRAFANA_CONNECTOR_LOG_LEVEL:-INFO}
+      - LOG_HTTP_REQUESTS=${LOG_HTTP_REQUESTS:-False}
+    routing:
+      expose: true
+      port: 4000
+      hostname: openfactory-grafana-connector
+    networks:
+      - factory-net
