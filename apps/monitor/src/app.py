@@ -223,7 +223,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
 
         self.logger.debug(
             f"OPCUA end-to-end latency={end_to_end_latency:.3f}s, "
-            f"OPCUA Gateway latency={shdr_gateway_latency:.3f}s, "
+            f"OPCUA Gateway latency={opcua_gateway_latency:.3f}s, "
             f"Kafka latency={kafka_latency:.3f}s, "
             f"Fan-out latency={fan_out_layer_latency:.3f}s, "
         )
