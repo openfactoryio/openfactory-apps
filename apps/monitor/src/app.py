@@ -49,9 +49,9 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
     shdr_gateway_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
     shdr_kafka_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
 
-    ocua_end_to_end_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
-    ocua_gateway_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
-    ocua_kafka_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+    opcua_end_to_end_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+    opcua_gateway_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
+    opcua_kafka_latency = SampleAttribute(tag='OpenFactory.App.Metrics')
 
     probe_event = EventAttribute(tag='OpenFactory.Metrics')
 
