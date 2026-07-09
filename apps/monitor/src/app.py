@@ -236,19 +236,19 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
 
         # Extract timestamp from message
         device_ts = msg_value['VALUE']
-        send_to_kafka_ts = msg_value['attributes']['ingestion_timestamp']
+        ingestion_ts = msg_value['attributes']['ingestion_timestamp']
         kafka_ts = msg_value['attributes']['kafka_timestamp']
         forwarder_ts = msg_value['attributes']['asset_forwarder_timestamp']
 
         # Compute time difference in seconds
         now_time = datetime.fromisoformat(now.replace('Z', '+00:00'))
         device_time = datetime.fromisoformat(device_ts.replace('Z', '+00:00'))
-        send_to_kafka_time = datetime.fromisoformat(send_to_kafka_ts.replace('Z', '+00:00'))
+        ingestion_time = datetime.fromisoformat(ingestion_ts.replace('Z', '+00:00'))
         kafka_time = datetime.fromisoformat(kafka_ts.replace('Z', '+00:00'))
         forwarder_time = datetime.fromisoformat(forwarder_ts.replace('Z', '+00:00'))
 
         end_to_end_latency = (now_time - device_time).total_seconds()
-        shdr_gateway_latency = (send_to_kafka_time - device_time).total_seconds()
+        shdr_gateway_latency = (kafka_time - ingestion_time).total_seconds()
         kafka_latency = (forwarder_time - kafka_time).total_seconds()
         fan_out_layer_latency = (now_time - forwarder_time).total_seconds()
 
