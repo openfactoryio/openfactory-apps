@@ -127,6 +127,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
                 "uri": f"opc.tcp://{self.asset_uuid.lower()}:4840",
                 "subscription": {
                     "publishing_interval": 10,
+                    "sampling_interval": 0,
                 },
             },
             "variables": {
