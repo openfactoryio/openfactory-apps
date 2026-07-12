@@ -56,6 +56,14 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
     probe_event = EventAttribute(tag='OpenFactory.Metrics')
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the OpenFactory monitor application.
+
+        Configures OpenFactory services, registers Prometheus metrics,
+        subscribes to probe attributes used for latency measurements,
+        and optionally deploys the SHDR and OPC UA monitoring probes
+        depending on the application configuration.
+        """
         super().__init__(*args, **kwargs)
 
         self.ofa = OpenFactory(ksqlClient=self.ksql)
@@ -106,7 +114,13 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.logger.debug(f"Probe command {probe}, latency {end_to_end_latency}")
 
     def monitor_opcua_connector(self):
-        """ Configure monitoring of the OPCUA connector """
+        """
+        Configure and deploy the OPC UA monitoring probe.
+
+        Creates the connector used to deploy the mocked OPC UA device,
+        registers the probe as an OpenFactory asset, and subscribes to
+        its published probe attribute for latency measurements.
+        """
         self.logger.info('Configure OPCUA Connector monitoring')
 
         self.opcua_connector = OPCUAConnector(
@@ -120,7 +134,13 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.opcua_asset.subscribe_to_attribute(attribute_id='probe', on_message=self.on_opcua_probe_event)
 
     def connect_opcua_probe(self):
-        """ Connect the mocked OPC UA device. """
+        """
+        Connect mocked OPC UA probe device.
+
+        Creates the connector configuration, conencts the device through
+        the OPC UA connector, and registers it as an OpenFactory device
+        connector.
+        """
         data = {
             "type": "opcua",
             "server": {
@@ -143,14 +163,25 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         register_device_connector(opcua_device, self.ksql)
 
     def deconnect_opcua_probe(self):
-        """ Deconnect the mocked OPCUA device. """
+        """
+        Remove the mocked OPC UA probe device.
+
+        Closes the probe asset subscription, tears down the deployed
+        connector, and unregisters the device from OpenFactory.
+        """
         self.opcua_asset.close()
         self.logger.info("Deconnect OPCUA Probe")
         self.opcua_connector.tear_down(device_uuid="OPCUA-PROBE")
         deregister_device_connector(device_uuid="OPCUA-PROBE", bootstrap_servers=self.bootstrap_servers)
 
     def monitor_shdr_connector(self):
-        """ Configure monitoring of the SHDR connector """
+        """
+        Configure and deploy the SHDR monitoring probe.
+
+        Creates the connector used to deploy the mocked SHDR device,
+        registers the probe as an OpenFactory asset, and subscribes to
+        its published probe attribute for latency measurements.
+        """
         self.logger.info('Configure SHDR Connector monitoring')
 
         self.shdr_connector = SHDRConnector(
@@ -164,7 +195,13 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.shdr_asset.subscribe_to_attribute(attribute_id='probe', on_message=self.on_shdr_probe_event)
 
     def connect_shdr_probe(self):
-        """ Connect the mocked SHDR device. """
+        """
+        Connect and register the mocked SHDR probe device.
+
+        Creates the connector configuration, connect the device through
+        the SHDR connector, and registers it as an OpenFactory device
+        connector.
+        """
         data = {
             "type": "shdr",
             "host": self.asset_uuid.lower(),
@@ -182,7 +219,12 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         register_device_connector(shdr_device, self.ksql)
 
     def deconnect_shdr_probe(self):
-        """ Deconnect the mocked SHDR device. """
+        """
+        Remove the mocked SHDR probe device.
+
+        Closes the probe asset subscription, tears down the deployed
+        connector, and unregisters the device from OpenFactory.
+        """
         self.shdr_asset.close()
         self.logger.info("Deconnect SHDR Probe")
         self.shdr_connector.tear_down(device_uuid="SHDR-PROBE")
@@ -314,7 +356,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             f"Fan-out latency={fan_out_layer_latency:.3f}s, "
         )
 
-    def update_metrics(self):
+    def _update_metrics_sync(self):
         """ Update metrics """
         self.logger.debug("Gathering metrics")
         unavailable_assets = len(self.ofa.unavailable_assets_uuid())
@@ -381,7 +423,23 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
         self.opcua_latency_data = []
         self.shdr_latency_data = []
 
+    async def update_metrics(self):
+        """
+        Update monitoring metrics without blocking the asyncio event loop.
+
+        Executes the synchronous metrics collection routine in a worker
+        thread since it performs blocking ksqlDB operations.
+        """
+        await asyncio.to_thread(self._update_metrics_sync)
+
     async def async_main_loop(self):
+        """
+        Run the monitor background loop.
+
+        Starts the optional probe servers, periodically updates the
+        monitoring metrics, emits probe events used for latency
+        measurements, and runs until the application terminates.
+        """
 
         if self.shdr_connector:
             self.logger.info('Starting SHDR Connector monitoring')
@@ -395,7 +453,7 @@ class OpenFactoryMonitorApp(OpenFactoryFastAPIApp):
             now = time.monotonic()
 
             if now - last_metrics_update >= self.METRICS_UPDATE_INTERVAL:
-                self.update_metrics()
+                await self.update_metrics()
                 last_metrics_update = now
 
             now_ofa = current_timestamp()

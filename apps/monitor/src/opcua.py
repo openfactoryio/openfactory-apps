@@ -36,7 +36,7 @@ class OPCUAServer:
 
     def on_subscription_created(self, event: ServerItemCallback, _):
         """ Called when a monitored item is created. """
-        self.logger.info(
+        self.logger.debug(
             "[OPC UA Probe] Monitored item created "
             "(external=%s)\n"
             "    request=%r\n"
@@ -48,7 +48,7 @@ class OPCUAServer:
 
     def on_subscription_deleted(self, event: ServerItemCallback, _):
         """ Called when a monitored item is deleted. """
-        self.logger.info(
+        self.logger.debug(
             "[OPC UA Probe] Monitored item deleted "
             "(external=%s)\n"
             "    request=%r\n"
@@ -60,7 +60,7 @@ class OPCUAServer:
 
     def on_subscription_modified(self, event: ServerItemCallback, _):
         """ Called when a monitored item is modified. """
-        self.logger.info(
+        self.logger.debug(
             "[OPC UA Probe] Monitored item modified "
             "(external=%s)\n"
             "    request=%r\n"
@@ -101,24 +101,20 @@ class OPCUAServer:
         self.logger.info("[OPC UA Probe] Registered namespace %s (idx=%d)", uri, idx)
 
         objects = self.server.nodes.objects
-
         probe_object = await objects.add_object(idx, "ProbeObject")
 
         self.probe = await probe_object.add_variable(idx, "Probe", current_timestamp())
         self.logger.info("[OPC UA Probe] Created Probe variable")
 
-        self.logger.info(f"[OPC UA Probe] OPC UA server listening on {self.opcua_endpoint}")
+        self.logger.info("[OPC UA Probe] OPC UA server listening on %s", self.opcua_endpoint)
 
         async with self.server:
             self.logger.info("[OPC UA Probe] Accepting OPC UA connections")
+
             try:
                 while True:
-                    try:
-                        await self.probe.write_value(current_timestamp())
-                        self.logger.debug("[OPC UA Probe] Emitted a Probe event")
-                    except Exception:
-                        self.logger.exception("[OPC UA Probe] Failed to update Probe value")
-                        raise
+                    await self.probe.write_value(current_timestamp())
+                    self.logger.debug("[OPC UA Probe] Emitted a Probe event")
                     await asyncio.sleep(1)
 
             finally:
